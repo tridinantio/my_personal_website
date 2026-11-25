@@ -1,24 +1,17 @@
-import 'package:flutter/material.dart';
+enum WorkDomain { all, posHardware, aiVoice, recruitment }
 
-class HeroStat {
-  const HeroStat({required this.value, required this.label});
+class FactRow {
+  const FactRow({required this.label, required this.value});
 
-  final String value;
   final String label;
+  final String value;
 }
 
-class SkillGroup {
-  const SkillGroup({
-    required this.title,
-    required this.icon,
-    required this.accent,
-    required this.skills,
-  });
+class StackRow {
+  const StackRow({required this.category, required this.items});
 
-  final String title;
-  final IconData icon;
-  final Color accent;
-  final List<String> skills;
+  final String category;
+  final List<String> items;
 }
 
 class ProductLink {
@@ -28,14 +21,14 @@ class ProductLink {
   final String url;
 }
 
-class ExperienceItemData {
-  const ExperienceItemData({
+class ExperienceEntry {
+  const ExperienceEntry({
     required this.period,
     required this.role,
     required this.company,
     required this.location,
     required this.details,
-    required this.techStack,
+    required this.stackSummary,
     this.productLinks = const [],
   });
 
@@ -44,40 +37,42 @@ class ExperienceItemData {
   final String company;
   final String location;
   final List<String> details;
-  final List<String> techStack;
+  final String stackSummary;
   final List<ProductLink> productLinks;
 }
 
-class ProjectItemData {
-  const ProjectItemData({
-    required this.number,
+class WorkProject {
+  const WorkProject({
+    required this.index,
     required this.name,
     required this.category,
     required this.company,
+    required this.period,
+    required this.domain,
     required this.summary,
-    required this.highlights,
-    required this.techStack,
-    required this.accent,
-    required this.icon,
-    required this.badgeLabel,
-    this.playStoreUrl,
+    required this.engineeringNotes,
+    required this.architectureSpecs,
+    required this.stack,
+    required this.playStoreUrl,
+    this.isPrimary = false,
   });
 
-  final String number;
+  final String index;
   final String name;
   final String category;
   final String company;
+  final String period;
+  final WorkDomain domain;
   final String summary;
-  final List<String> highlights;
-  final List<String> techStack;
-  final Color accent;
-  final IconData icon;
-  final String badgeLabel;
-  final String? playStoreUrl;
+  final List<String> engineeringNotes;
+  final List<FactRow> architectureSpecs;
+  final List<String> stack;
+  final String playStoreUrl;
+  final bool isPrimary;
 }
 
-class EducationData {
-  const EducationData({
+class EducationEntry {
+  const EducationEntry({
     required this.university,
     required this.location,
     required this.degree,

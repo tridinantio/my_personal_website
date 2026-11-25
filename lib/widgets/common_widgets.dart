@@ -2,6 +2,14 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 
+enum ScreenBand { mobile, tablet, desktop }
+
+ScreenBand screenBandFor(double width) {
+  if (width >= 960) return ScreenBand.desktop;
+  if (width >= 600) return ScreenBand.tablet;
+  return ScreenBand.mobile;
+}
+
 class SiteShell extends StatelessWidget {
   const SiteShell({super.key, required this.child});
 
@@ -9,228 +17,179 @@ class SiteShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1180),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: child,
-        ),
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final horizontal = switch (screenBandFor(constraints.maxWidth)) {
+          ScreenBand.desktop => 36.0,
+          ScreenBand.tablet => 28.0,
+          ScreenBand.mobile => 18.0,
+        };
+        return Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1120),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: horizontal),
+              child: child,
+            ),
+          ),
+        );
+      },
     );
   }
 }
 
-class SectionBlock extends StatelessWidget {
-  const SectionBlock({
+class EditorialSectionHeader extends StatelessWidget {
+  const EditorialSectionHeader({
     super.key,
-    required this.eyebrow,
+    required this.index,
     required this.title,
     this.subtitle,
-    required this.child,
-    this.verticalPadding = 64,
   });
 
-  final String eyebrow;
+  final String index;
   final String title;
   final String? subtitle;
-  final Widget child;
-  final double verticalPadding;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: verticalPadding),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          EyebrowLabel(text: eyebrow),
-          const SizedBox(height: 14),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 740),
-            child: Text(
-              title,
-              style: Theme.of(context).textTheme.headlineMedium,
+    final palette = EditorialPalette.of(context);
+    final band = screenBandFor(MediaQuery.sizeOf(context).width);
+    final titleStyle = Theme.of(context).textTheme.headlineMedium?.copyWith(
+      fontSize: switch (band) {
+        ScreenBand.desktop => 36,
+        ScreenBand.tablet => 30,
+        ScreenBand.mobile => 26,
+      },
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            Text(
+              index,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: palette.accent,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
             ),
-          ),
-          if (subtitle != null) ...[
-            const SizedBox(height: 12),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 680),
-              child: Text(
-                subtitle!,
-                style: Theme.of(context).textTheme.bodyLarge,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Semantics(
+                header: true,
+                child: Text(title, style: titleStyle),
               ),
             ),
           ],
-          const SizedBox(height: 32),
-          child,
-        ],
-      ),
-    );
-  }
-}
-
-class EyebrowLabel extends StatelessWidget {
-  const EyebrowLabel({
-    super.key,
-    required this.text,
-    this.dark = false,
-  });
-
-  final String text;
-  final bool dark;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: TextStyle(
-        color: dark ? AppColors.ink : AppColors.mint,
-        fontSize: 12,
-        fontWeight: FontWeight.w800,
-        letterSpacing: 1.4,
-      ),
-    );
-  }
-}
-
-class HoverCard extends StatefulWidget {
-  const HoverCard({
-    super.key,
-    required this.child,
-    this.padding = const EdgeInsets.all(24),
-    this.borderRadius = 22,
-    this.hoverBorderColor = AppColors.borderHover,
-    this.backgroundColor = AppColors.surface,
-  });
-
-  final Widget child;
-  final EdgeInsetsGeometry padding;
-  final double borderRadius;
-  final Color hoverBorderColor;
-  final Color backgroundColor;
-
-  @override
-  State<HoverCard> createState() => _HoverCardState();
-}
-
-class _HoverCardState extends State<HoverCard> {
-  bool _hovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOutCubic,
-        transform: Matrix4.translationValues(0, _hovered ? -3 : 0, 0),
-        padding: widget.padding,
-        decoration: BoxDecoration(
-          color: _hovered
-              ? Color.alphaBlend(
-                  widget.hoverBorderColor.withValues(alpha: 0.05),
-                  widget.backgroundColor,
-                )
-              : widget.backgroundColor,
-          borderRadius: BorderRadius.circular(widget.borderRadius),
-          border: Border.all(
-            color: _hovered ? widget.hoverBorderColor : AppColors.border,
-          ),
-          boxShadow: _hovered
-              ? [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.28),
-                    blurRadius: 24,
-                    offset: const Offset(0, 12),
-                  ),
-                ]
-              : const [],
         ),
-        child: widget.child,
-      ),
+        if (subtitle != null) ...[
+          const SizedBox(height: 10),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 660),
+            child: Text(
+              subtitle!,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ),
+        ],
+        const SizedBox(height: 18),
+        Divider(height: 1, thickness: 1, color: palette.hairline),
+      ],
     );
   }
 }
 
-class TechChip extends StatelessWidget {
-  const TechChip(
-    this.label, {
-    super.key,
-    this.accent,
-    this.compact = false,
-  });
+class InlineTag extends StatelessWidget {
+  const InlineTag(this.label, {super.key});
 
   final String label;
-  final Color? accent;
-  final bool compact;
 
   @override
   Widget build(BuildContext context) {
-    final borderColor = accent != null
-        ? accent!.withValues(alpha: 0.28)
-        : AppColors.border;
-    final bgColor = accent != null
-        ? accent!.withValues(alpha: 0.08)
-        : AppColors.inkSoft;
+    final palette = EditorialPalette.of(context);
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: compact ? 10 : 12,
-        vertical: compact ? 5 : 7,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
       decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: borderColor),
+        color: palette.canvas,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: palette.hairline),
       ),
       child: Text(
         label,
         style: TextStyle(
-          fontSize: compact ? 12 : 13,
+          fontSize: 12.5,
           fontWeight: FontWeight.w500,
-          color: accent ?? AppColors.text,
-          height: 1.1,
+          color: palette.inkMuted,
+          height: 1.2,
         ),
       ),
     );
   }
 }
 
-class SocialActionPill extends StatelessWidget {
-  const SocialActionPill({
+class EditorialTextLink extends StatelessWidget {
+  const EditorialTextLink({
     super.key,
-    required this.icon,
     required this.label,
     required this.onPressed,
-    this.dark = false,
+    this.external = false,
+    this.emphasize = false,
   });
 
-  final IconData icon;
   final String label;
   final VoidCallback onPressed;
-  final bool dark;
+  final bool external;
+  final bool emphasize;
 
   @override
   Widget build(BuildContext context) {
-    return OutlinedButton.icon(
+    final palette = EditorialPalette.of(context);
+    return TextButton(
       onPressed: onPressed,
-      icon: Icon(icon, size: 16),
-      label: Text(label),
-      style: OutlinedButton.styleFrom(
-        foregroundColor: dark ? AppColors.ink : AppColors.text,
-        backgroundColor: dark
-            ? AppColors.ink.withValues(alpha: 0.08)
-            : AppColors.surface.withValues(alpha: 0.7),
-        side: BorderSide(
-          color: dark
-              ? AppColors.ink.withValues(alpha: 0.25)
-              : AppColors.border,
+      style: ButtonStyle(
+        minimumSize: const WidgetStatePropertyAll(Size(44, 44)),
+        padding: const WidgetStatePropertyAll(
+          EdgeInsets.symmetric(horizontal: 6, vertical: 8),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        textStyle: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600),
+        foregroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.hovered) ||
+              states.contains(WidgetState.focused)) {
+            return palette.accent;
+          }
+          return emphasize ? palette.accent : palette.ink;
+        }),
+        side: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.focused)) {
+            return BorderSide(color: palette.accent, width: 2);
+          }
+          return BorderSide.none;
+        }),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                decoration: TextDecoration.underline,
+                decorationColor: emphasize ? palette.accent : palette.borderStrong,
+                decorationThickness: 1.2,
+              ),
+            ),
+          ),
+          if (external) ...[
+            const SizedBox(width: 5),
+            const Icon(Icons.open_in_new, size: 14),
+          ],
+        ],
       ),
     );
   }

@@ -1,36 +1,32 @@
-# Trinanda Dinantio — Flutter Engineer Portfolio
+# Trinanda Dinantio, Flutter Engineer Portfolio
 
-Personal portfolio website built with **Flutter Web**. It showcases professional experience, categorized technical skills, live Google Play applications, and education credentials in a responsive single-page layout.
+Personal portfolio website built with Flutter Web using a Warm Editorial Craft design direction documented in `DESIGN.md`. It includes a working light and dark theme toggle, domain filters for shipped Google Play products, technical notes dialogs, and responsive layouts across mobile, tablet, and desktop widths.
 
-## Architecture
+## Structure
 
 ```text
+DESIGN.md                         Design direction, WCAG AA color tokens, and decision log
+assets/fonts/                     Bundled Newsreader and IBM Plex Sans static TTF fonts
 lib/
-├── main.dart                     # App entrypoint, SelectionArea, sticky nav & scroll shell
-├── theme/app_theme.dart          # Dark theme palette & typography tokens
-├── models/portfolio_models.dart  # Immutable data models
-├── data/portfolio_data.dart      # Single source of truth for portfolio content
-├── widgets/common_widgets.dart   # SiteShell, SectionBlock, HoverCard, TechChip, SocialActionPill
+├── main.dart                     App entrypoint, theme mode state, and scroll shell
+├── theme/app_theme.dart          Light and dark EditorialPalette tokens and button themes
+├── models/portfolio_models.dart  Immutable models for work, experience, and stack rows
+├── data/portfolio_data.dart      Portfolio content synced with resume facts
+├── widgets/common_widgets.dart   SiteShell, ScreenBand, EditorialSectionHeader, InlineTag
 └── sections/
-    ├── nav_bar.dart              # Sticky frosted-glass navbar + mobile popup menu
-    ├── hero_section.dart         # Headline, quick stats & social CTAs
-    ├── about_section.dart        # Summary & 6-category technical stack
-    ├── experience_section.dart   # Career timeline & live Play Store chips
-    ├── projects_section.dart     # Live production apps + interactive Highlights modal
-    ├── education_section.dart    # University degree, CGPA, honors, certification & languages
-    └── contact_section.dart      # Email, Copy Email, social links & footer
+    ├── nav_bar.dart              Sticky navigation bar, theme toggle, and mobile sheet menu
+    ├── hero_section.dart         Asymmetric hero and profile fact ledger
+    ├── projects_section.dart     Domain filter, flagship case study spread, and notes dialog
+    ├── experience_section.dart   Hairline experience ledger
+    ├── about_section.dart        Two-column technical stack index
+    ├── education_section.dart    Education, certification, and languages note
+    └── contact_section.dart      Inverted contact block and footer
 ```
 
-## Run locally
+## Verify and build
 
 ```powershell
 flutter pub get
-flutter run -d chrome
-```
-
-## Verify & build for production
-
-```powershell
 flutter analyze
 flutter test
 flutter build web --release
@@ -38,4 +34,4 @@ flutter build web --release
 
 ## Deployment
 
-Pushing to `main` automatically runs `flutter analyze`, `flutter test`, builds the release web bundle with the repository `--base-href`, and deploys to GitHub Pages via `.github/workflows/deploy.yml`.
+Pushing to `main` runs `flutter analyze`, `flutter test`, builds the release web bundle with Flutter `3.47.1`, and deploys to GitHub Pages via `.github/workflows/deploy.yml`.
